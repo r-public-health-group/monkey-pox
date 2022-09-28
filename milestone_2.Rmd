@@ -1,0 +1,20 @@
+---
+title: "milestone_2"
+output: pdf_document
+date: '2022-09-28'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(readr)
+
+url = 'https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_mpx_cases.csv'
+
+read_csv(url)
+
+```
+
