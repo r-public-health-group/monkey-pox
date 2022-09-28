@@ -1,5 +1,6 @@
 ---
-title: "milestone_2"
+title: "Milestone 2"
+author: "Abigail Duque, Misty Garcia, Katherine Boudreau"
 output: pdf_document
 date: '2022-09-28'
 ---
