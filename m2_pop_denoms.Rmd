@@ -1,0 +1,37 @@
+---
+title: "m2_pop_denoms"
+author: "Katherine Boudreau"
+output: pdf_document
+date: '2022-10-02'
+---
+
+**in progress**
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse) #readr, dplyr, and tibble are included in this
+```
+
+Import Statement
+```{r import}
+pop_denoms = read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_pop_denominators.csv")
+```
+Description of dataset
+What is the data source? (1-2 sentences on where the data is coming from, dates included, etc.)
+Eurostat, population data as of Jan 1
+https://ec.europa.eu/eurostat/databrowser/view/tps00001/default/table?lang=en
+The data source of euro_pop_denominators.csv
+
+How does the dataset relate to the group problem statement and question?
+The population data in this csv will serve as the denominator in the incident rate calculations.
+
+```{r playground}
+be <- pop_denoms[which (pop_denoms$geo=="BE"),]
+```
+
+Elements:
+- geo is a string (char?) denoting the region that this population data comes from.
+Geopolitical entity; 54 options
+
+- OBS_VALUE is the observed population on January 1 of the reported year. Numeric.
