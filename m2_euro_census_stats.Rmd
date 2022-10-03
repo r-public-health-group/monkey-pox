@@ -1,0 +1,119 @@
+---
+title: "Milestone 2"
+author: "Abigail Duque"
+date: "2022-10-02"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Description of datset
+
+## What is the data source?
+
+The dataset is from the European Statistical System/2011 European census data which includes the EU country codes, sex at birth, age ranges, employment status (CAS), education status, population of locality of residence and the number of people in each strata. 
+
+## How does the dataset relate to the group problem statement and question?
+
+The dataset will help us visualize how Monkeypox case rates differ by region, stratified by various demographic factors to prepare for an update to the state health department.
+
+## Import Statement
+
+## Document the import process
+
+From the PHW251 Project Data Repository on Github, we opened each appropriate csv, obtained the url from download/viewing the raw data and then imported the csv into r studio using the read_csv function from the readr package.
+
+```{r import csv}
+
+## ECS = Euro Census Stats
+
+library(readr)
+
+url = 'https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_census_stats.csv'
+
+ECS <- read_csv(url,
+          col_names = TRUE,
+          col_types = NULL,
+          na = c("", "NA")
+)
+        
+
+```
+
+## Tidying dataframe
+```{r tidying dataframe}
+
+library(tidyverse)
+
+ECS1 <- rename_with(ECS, ~ tolower(gsub(" ","_",.x,fixed=TRUE)))
+
+```
+
+## Identify data types for 5+ data elements/columns/variables
+
+
+The variables needed from dataset are country_code, sex, age, CAS (employment status), EDU (education status),
+population of locality of residence (RES_POP) and number of people in each strata (pop). From read_csv:
+character - chr (8): COUNTRY_CODE, SEX, AGE, CAS, EDU, FLAGS, FOOTNOTES, RES_POP
+numeric - dbl (2): TIME, pop
+
+
+## Provide a basic description of the 5+ data element
+
+
+## variable: country_code
+Using the unique function on the country_code variable, there are 32 different countries in the EU
+```{r country_code}
+
+unique(ECS1$country_code)
+
+```
+## variable: sex
+Two categories under sex: male, female.
+```{r sex}
+unique(ECS1$sex)
+
+```
+
+## variable: age
+There are six different age ranges in the dataset: <15, 15-29, 30-49, 65-84 & >85
+```{r age}
+
+unique(ECS1$age)
+
+
+```
+## variable: cas
+There are five different statuses of employment.
+```{r employment status}
+
+unique(ECS1$cas)
+
+```
+## variable: edu
+There are nine different statuses of education.
+```{r education status}
+
+unique(ECS1$edu)
+
+
+```
+
+## variable: res_pop
+There are seven levels of population in each locality of residence.
+```{r residence population}
+
+unique(ECS1$res_pop)
+
+
+```
+
+## variable: pop
+The number of people in the different location strata ranges from 0 to 1,702,270.
+```{r # of people in each location strata}
+
+range(ECS1$pop)
+
+```
