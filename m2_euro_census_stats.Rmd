@@ -54,17 +54,18 @@ ECS1 <- rename_with(ECS, ~ tolower(gsub(" ","_",.x,fixed=TRUE)))
 ## Identify data types for 5+ data elements/columns/variables
 
 
-The variables needed from dataset are country_code, sex, age, CAS (employment status), EDU (education status),
-population of locality of residence (RES_POP) and number of people in each strata (pop). From read_csv:
-character - chr (8): COUNTRY_CODE, SEX, AGE, CAS, EDU, FLAGS, FOOTNOTES, RES_POP
-numeric - dbl (2): TIME, pop
+From read_csv, there are 8 character data types : COUNTRY_CODE, SEX, AGE, CAS, EDU, FLAGS, FOOTNOTES, RES_POP and 2 numeric data types:TIME, pop. <br>
+We will obtain the different regions assessed from the country_code variable. The demographic variables we might use include sex, age, CAS (employment status) and EDU (education status). <br>
+We will also need the population of locality of residence (RES_POP) and number of people in each strata (pop). <br>
+
+This data set will merge with eu monkeypox cases & eu population denominators. The data types of each variable are acceptable.
 
 
 ## Provide a basic description of the 5+ data element
 
 
 ## variable: country_code
-Using the unique function on the country_code variable, there are 32 different countries in the EU
+Using the unique function on the country_code variable, there are 32 different two-letter country codes in this dataset.
 ```{r country_code}
 
 unique(ECS1$country_code)
