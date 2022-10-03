@@ -2,28 +2,113 @@
 title: "Milestone 2"
 author: "Abigail Duque, Misty Garcia, Katherine Boudreau"
 output: pdf_document
-date: '2022-09-28'
+date: '2022-10-03'
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(tidyverse)
 ```
 
 
 ## Description of dataset
 
 ### What is the data source?
-Our data source is...
+We are interested in how monkeypox case rates differ by European region and population demographics. We are first utilizing a monkeypox case dataset from the European Centre for Disease Prevention and Control that spans 2022-05-09 to 2022-08-23 and includes the daily number of confirmed monkey pox cases by country and how the data was collected. Then, we will incorporate a European population dataset from \href{https://ec.europa.eu/eurostat/databrowser/view/tps00001/default/table?lang=en}{Eurostat}, which includes European countries' yearly population data from 2011 to 2022 based on the total population residing in that country as of January 1st of each year. Finally, we will incorporate the European Statistical System's 2011 European census data which includes the EU country codes, sex at birth, age ranges, employment status (CAS), education status, population of locality of residence and the number of people in each strata.
 
 ### How does the dataset relate to the group problem statement and question?
-This dataset...
+As we prepare our report on monkeypox case rates to the state health department, the monkeypox case data will provide us with the number of cases that goes in the numerator of our case rate calculation, the population data gives us the size of the population at risk that will go in the denominator of our case rate calculation, and the census data will allow us to stratify the case rates by various demographic factors.
 
-```{r}
-library(readr)
+## Import Statement
+All three of our CSVs are hosted on the course github page: https://github.com/PHW290/phw251_projectdata. We navigated to our respective csvs, clicked on raw data to get the standalone csv, and saved it into a url variable in this Rmd. We then used the read_csv function from the readr library to import our data into rstudio. 
+```{r import, message=FALSE}
 
-url = 'https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_mpx_cases.csv'
+mpx_cases_url = "https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_mpx_cases.csv"
+mpx_cases_df <- read_csv(mpx_cases_url)
 
-read_csv(url)
+pop_denoms_url = "https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_pop_denominators.csv"
+pop_denoms_df = read_csv(pop_denoms_url)
+
+census_stats_url = "https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_census_stats.csv"
+census_stats_df <- read_csv(census_stats_url,
+          col_names = TRUE,
+          col_types = NULL,
+          na = c("", "NA"))
 
 ```
 
+## Lowercase Column Names
+We are now lowercasing all the column names. 
+
+```{r lowercase}
+mpx_cases_df <- rename_with(mpx_cases_df, ~tolower(.x))
+pop_denoms_df <- rename_with(pop_denoms_df, ~tolower(.x))
+census_stats_df <- rename_with(census_stats_df, ~tolower(.x))
+```
+
+## Data Types and Descriptions
+
+The dates are in date format, the country expression, the country code and source are all in character format, and the confirmed cases are in numeric format. These all appear to be the correct format for their values. 
+
+### Variable: daterep from mpx_cases_df
+
+```{r}
+str(mpx_cases_df$daterep)
+
+min(mpx_cases_df$daterep)
+max(mpx_cases_df$daterep)
+
+unique(dplyr::count(mpx_cases_df, daterep)$n)
+```
+
+The dates are in date format, they span from 2022-05-09 to 2022-08-23, and each date shows up 29 times. 
+
+### Variables: countryexp & countrycode from mpx_cases_df
+
+```{r}
+str(mpx_cases_df$countryexp)
+unique(mpx_cases_df$countryexp)
+length(unique(mpx_cases_df$countryexp))
+
+str(mpx_cases_df$countrycode)
+unique(mpx_cases_df$countrycode)
+length(unique(mpx_cases_df$countrycode))
+```
+
+The variable countryexp is the country name where countrycode is it's two letter counterpart. Both are in character format. There are 29 countries respresented. 
+
+### Variable: source
+
+```{r}
+unique(mpx_cases_df$source)
+```
+
+There are two sources of data. 
+
+
+### Variable: confcase
+
+```{r}
+unique(mpx_cases_df$confcases)
+
+min(mpx_cases_df$confcases)
+mean(mpx_cases_df$confcases)
+max(mpx_cases_df$confcases)
+```
+
+The confirmed cases range from 0 to 655, and the mean is 5.7 cases per day. 
+
+
+```{r pop_denoms_df$geo}
+summary(pop_denoms_df$geo)
+typeof(pop_denoms_df$geo)
+```
+1. The values in the GEO column of the pop_denoms_df are characters denoting the geopolitical region that a given row's population data comes from. There are 54 possible values for this column, either a 2-letter country code or a code denoting the entire European Union on a given year. We will eventually merge these 2-letter country codess with the 2-letter country codes in the euro_mpx_cases csv, so the character data type will suffice.
+
+
+```{r pop_denoms_df$obs_value}
+summary(pop_denoms_df$obs_value)
+typeof(pop_denoms_df$obs_value)
+```
+2. The values in the OBS_VALUE column are the observed population on January 1 of the reported year. These values are doubles representing the total population count of a given region, so we can use thess values directly as the denominators in our case rate calculations.
