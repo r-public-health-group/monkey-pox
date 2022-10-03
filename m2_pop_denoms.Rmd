@@ -1,0 +1,42 @@
+---
+title: "m2_pop_denoms"
+author: "Katherine Boudreau"
+output: pdf_document
+date: '2022-10-02'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse) #readr, dplyr, and tibble are included in this
+```
+
+## Description of dataset
+
+### What is the data source?
+Our group took the European Population Denominators csv from the \href{https://github.com/PHW290/phw251_projectdata}{PHW251 Project Data github repo}. This data originates from \href{https://ec.europa.eu/eurostat/databrowser/view/tps00001/default/table?lang=en}{Eurostat} and includes European countries' yearly population data from 2011 to 2022, based on the total population residing in that country as of January 1st of each year.
+
+### How does the dataset relate to the group problem statement and question?
+This population data will serve as the denominator in the case rate calculations we report across various European regions and time periods.
+
+## Import Statement
+To import this csv, we copied the URL for the raw git hub view of the appropriate \href{https://github.com/PHW290/phw251_projectdata/blob/main/euro_pop_denominators.csv}{csv file}. We then imported the csv using the read_csv() readr function.
+```{r import, message=FALSE}
+file_path = "https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_pop_denominators.csv"
+pop_denoms = read_csv(file_path)
+```
+
+## Data Types and Descriptions
+Two key data columns from this file are the GEO column and the OBS_VALUE column.
+```{r playground}
+# GEO Column
+summary(pop_denoms$geo)
+typeof(pop_denoms$geo)
+
+# OBS VALUE column
+summary(pop_denoms$OBS_VALUE)
+typeof(pop_denoms$OBS_VALUE)
+```
+The values in the GEO column are characters denoting the geopolitical region that a given row's population data comes from. There are 54 possible values for this column, either a 2-letter country code or a code denoting the entire European Union on a given year. We will eventually merge these 2-letter country codess with the 2-letter country codes in the euro_mpx_cases csv, so the character data type will suffice.
+
+The values in the OBS_VALUE column are the observed population on January 1 of the reported year. These values are doubles representing the total population count of a given region, so we can use thess values directly as the denominators in our case rate calculations.

@@ -1,0 +1,100 @@
+---
+title: "milestone2_mpxcases"
+author: "misty garcia"
+date: '2022-09-28'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Description of dataset
+
+We are interested in how monkeypox case rates differ by region and demographics. We are utilizing a monkeypox case dataset to accomplish a piece of this. 
+
+The monkeypox case data is coming from the European Centre for Disease Prevention and Control. It spans 2022-05-09 to 2022-08-23. It includes the daily number of confirmed monkey pox cases by country and how the data was collected.
+
+## Import statement
+
+The csv is hosted on github in https://github.com/PHW290/phw251_projectdata. We navigated to our respective csv and then clicked on raw data to get the standalone csv and saved it into a url variable. We then used the read_csv function from the readr library to import our data into rstudio. 
+
+```{r,  include=FALSE}
+library(readr)
+```
+
+```{r}
+url = 'https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_mpx_cases.csv'
+df = read_csv(url)
+df
+```
+
+We are now lowercasing all the column names. 
+
+```{r,  include=FALSE}
+library(tidyverse)
+```
+
+
+```{r}
+df <- rename_with(df, ~tolower(.x))
+df
+```
+
+
+## Identify data types for 5+ data elements/columns/variables
+
+```{r}
+str(df)
+```
+
+The dates are in date format, the country expression, the country code and source are all in character format, and the confirmed cases are in numeric format. These all appear to be the correct format for their values. 
+
+
+## Provide a basic description of the 5+ data element
+
+### Variable: daterep
+
+```{r}
+min(df$daterep)
+max(df$daterep)
+
+unique(dplyr::count(df, daterep)$n)
+```
+
+The dates span from 2022-05-09 to 2022-08-23 and each date shows up 29 times. 
+
+### Variable: countryexp & countrycode
+
+```{r}
+unique(df$countryexp)
+length(unique(df$countryexp))
+
+unique(df$countrycode)
+length(unique(df$countrycode))
+```
+
+The variable countryexp is the country name where countrycode is it's two letter counterpart. There are 29 countries respresented. 
+
+### Variable: source
+
+```{r}
+unique(df$source)
+```
+
+There are two sources of data. 
+
+
+### Variable: confcase
+
+```{r}
+unique(df$confcases)
+
+min(df$confcases)
+mean(df$confcases)
+max(df$confcases)
+```
+
+The confirmed cases range from 0 to 655, and the mean is 5.7 cases per day. 
+
