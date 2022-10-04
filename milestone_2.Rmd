@@ -66,11 +66,11 @@ The dates are in date format, they span from 2022-05-09 to 2022-08-23, and each 
 ### Variables: countryexp & countrycode from mpx_cases_df
 
 ```{r}
-str(mpx_cases_df$countryexp)
+typeof(mpx_cases_df$countryexp)
 unique(mpx_cases_df$countryexp)
 length(unique(mpx_cases_df$countryexp))
 
-str(mpx_cases_df$countrycode)
+typeof(mpx_cases_df$countrycode)
 unique(mpx_cases_df$countrycode)
 length(unique(mpx_cases_df$countrycode))
 ```
@@ -80,7 +80,7 @@ The variable countryexp is the country name where countrycode is it's two letter
 ### Variable: source from mps_cases_df
 
 ```{r}
-str(mpx_cases_df$source)
+typeof(mpx_cases_df$source)
 
 unique(mpx_cases_df$source)
 ```
@@ -90,7 +90,7 @@ Source is in a character format. There are two sources of data: "TESSy" and "EI.
 ### Variable: confcase from mpx_cases_df
 
 ```{r}
-str(mpx_cases_df$confcases)
+typeof(mpx_cases_df$confcases)
 
 unique(mpx_cases_df$confcases)
 
