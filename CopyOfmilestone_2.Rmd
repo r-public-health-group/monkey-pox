@@ -184,5 +184,6 @@ census_stats_df2 <- census_stats_df %>%
   group_by(country_code, edu) %>%
   summarize(sum(pop))
 
+regions_df <- read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/world_country_regions.csv")
 
 ```
