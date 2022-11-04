@@ -1,5 +1,6 @@
 ---
 title: "Milestone 3"
+author: "Abigail Duque, Misty Garcia, Katherine Boudreau"
 output: pdf_document
 date: '2022-11-04'
 ---
@@ -70,13 +71,9 @@ unique(dplyr::count(mpx_cases_df, daterep)$n)
 
 The dates are in date format, they span from 2022-05-09 to 2022-08-23, and each date shows up 29 times. 
 
-### Variables: countryexp & countrycode from mpx_cases_df
+### Variables: countrycode from mpx_cases_df
 
 ```{r}
-typeof(mpx_cases_df$countryexp)
-unique(mpx_cases_df$countryexp)
-length(unique(mpx_cases_df$countryexp))
-
 typeof(mpx_cases_df$countrycode)
 unique(mpx_cases_df$countrycode)
 length(unique(mpx_cases_df$countrycode))
@@ -187,31 +184,73 @@ range(census_stats_df$pop)
 The strata population is in a numeric data format. The number of people in the different location strata ranges from 0 to 1,702,270.
 
 \newpage
-## Milestone 3
+# Milestone 3
 
 Subset rows or columns, as needed
 ```{r subset}
 
+#acquire region dataset
+regions <- read.csv('https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/world_country_regions.csv')
+
+#filtered by europe countries
+regions <- regions %>%
+  filter(region == 'Europe') %>%
+  select(iso_3166.2, sub.region, region)
+
+#create country code variable to join tables
+regions <- regions %>% 
+  mutate(country_code = substr(regions$iso_3166.2,12,13) )
+
+#filtered mpx_cases columns
+mpx_cases_df <- mpx_cases_df %>%
+  select(daterep, countrycode, confcases)
+
+#filtered pop_denom by year and columns
+pop_denoms_df <- pop_denoms_df %>%
+  filter(time_period == 2022) %>%
+  select(geo, obs_value)
+
+#joined all three datasets together
+df <- inner_join(x = regions, y = mpx_cases_df, by = c('country_code' = 'countrycode'))
+df <- inner_join(x = df, y = pop_denoms_df, by = c('country_code' = 'geo'))
+
+
+df <- df %>%
+  select(-iso_3166.2, -region)
 ```
 
 Create new variables needed for analysis (minimum 2)
-* New variables should be created based on existing columns; for example
-** Calculating a rate
-** Combining character strings
-* If no new values are needed for final tables/graphs, please create 2 new variables anyway
 
 ```{r new_variables}
+
+#created case rate by ten million people
+df_grouped <- df %>% 
+  group_by(sub.region, daterep) %>%
+  summarise(total_cases = sum(confcases), total_obs = sum(obs_value)) %>%
+  mutate(case_rate_by_tenmillion = total_cases / total_obs * 10000000)
+
+df_grouped
 
 ```
 
 Clean variables needed for analysis (minimum 2)
-* Examples
-** Recode invalid values
-** Handle missing fields
-** Recode categories
-* If not needed for final analysis, please create at least 2 new variables anyway
 
 ``` {r clean_variables}
+
+#we used an inner join and there were no discrepancies between datasets, 
+#therefore are no nulls caused by joining
+sum(is.na(df_grouped))
+
+#make sub.region a categorical value
+df_grouped <- df_grouped %>%
+  mutate(sub.region = factor(sub.region))
+
+#make new month column & made it a categorical value
+df_grouped <- df_grouped %>%
+  mutate(month = strftime(daterep,"%B")) %>%
+  mutate(month = factor(month, levels = c('May','June','July','August')))
+
+str(df_grouped)
 
 ```
 Data dictionary based on clean dataset (minimum 4 data elements), including:
@@ -219,9 +258,22 @@ Fields
 Variable name
 Data type
 Description
-One or more tables with descriptive statistics for 4 data element
-PDF that is professionally prepared for presentation
-Each part of the milestone is clearly on one page (use \newpage to push to a new page)
-Only the necessary information is outputted (you should suppress, for example, entire data frame outputs)
-Use of headers and sub headers to create an organized document
 
+sub.region: factor, region in europe
+
+daterep: date, year-month-day by week from may to august 2022
+
+total_cases: num, total monkeypox cases in a subregion by week
+
+total_obs: num, total population by subregion
+
+case_rate_by_tenmillion: num, the rate of monkeypox in a subregion by ten million people
+
+month: date, the month from may to august 2022
+
+
+One or more tables with descriptive statistics for 4 data element
+
+```{r}
+summary(df_grouped)
+```
