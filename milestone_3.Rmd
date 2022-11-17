@@ -205,6 +205,11 @@ regions <- regions %>%
 mpx_cases_df <- mpx_cases_df %>%
   select(daterep, countrycode, confcases)
 
+#filter pop_denom for 2011 for census analysis
+pop_denoms_2011 <- pop_denoms_df %>%
+  filter(time_period == 2011) %>%
+  select(geo, obs_value)
+
 #filtered pop_denom by year and columns
 pop_denoms_df <- pop_denoms_df %>%
   filter(time_period == 2022) %>%
@@ -276,4 +281,53 @@ One or more tables with descriptive statistics for 4 data element
 
 ```{r}
 summary(df_grouped)
+```
+
+## Milestone 4
+``` {r join census data}
+# Hypothesis: Countries with a higher proportion of older residents will have a higher case rate.
+# Y_GE85
+table(census_stats_df$age)
+table(census_stats_df$time)
+
+sex_pct_df <- census_stats_df %>%
+  group_by(country_code, sex) %>%
+  summarize(sex_count = sum(pop)) %>%
+  group_by(country_code) %>%
+  mutate(country_pop = sum(sex_count)) %>%
+  filter(sex == "F",
+         country_pop != 0) %>%
+  rename(female_count = sex_count)
+
+age_pct_df <- census_stats_df %>%
+  group_by(country_code, age) %>%
+  summarize(age_count = sum(pop)) %>%
+  group_by(country_code) %>%
+  mutate(country_pop = sum(age_count)) %>%
+  filter(age == "Y_GE85", 
+         country_pop != 0) %>%
+  rename(ge85_count = age_count)
+
+demog_df <- full_join(x = sex_pct_df, y = age_pct_df, by = "country_code") 
+
+demog_df <- demog_df %>%
+  select(country_code, ge85_count, female_count, country_pop.x) %>%
+  rename(country_pop = country_pop.x)
+
+  
+demog_df <- inner_join(x = regions, y = demog_df, by = 'country_code')
+
+demog_df <- demog_df %>%
+  group_by(sub.region) %>%
+  summarize(pct_ge85 = round(sum(ge85_count) / sum(country_pop) * 100,2),
+            pct_female = round(sum(female_count) / sum(country_pop) * 100, 2))
+
+df_grouped_total <- df_grouped %>%
+  group_by(sub.region) %>%
+  summarize(total_cases = sum(total_cases),
+            total_obs = sum(total_obs)) %>%
+  mutate(case_rate_p_mill = total_cases / total_obs * 1000000)
+
+demog_df <- inner_join(x = demog_df, y = df_grouped_total, by = "sub.region")
+demog_df <- select(demog_df, c(-total_cases, -total_obs))
 ```
