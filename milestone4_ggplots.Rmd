@@ -10,6 +10,7 @@ date: '2022-11-19'
 knitr::opts_chunk$set(echo = TRUE)
 library(readr)
 library(tidyverse)
+library(kableExtra)
 ```
 
 # Milestone 1
@@ -286,6 +287,7 @@ summary(df_grouped)
 ```
 
 ## Milestone 4
+### Prepare census data
 To evaluate how census data trends for a region compare to that region's monkeypox rates, we will first calculate the % of the population 
 in each region that is 85 years old or older and the % of the population in each region that is female.
 
@@ -336,4 +338,12 @@ df_grouped_total <- df_grouped %>%
 # Join case rates with the regional census data
 demog_df <- inner_join(x = demog_df, y = df_grouped_total, by = "sub.region")
 demog_df <- select(demog_df, c(-total_cases, -total_obs))
+```
+
+### Visualize census data vs case rates
+``` {r}
+kable(demog_df,longtable=T,booktabs=T, col.names=c("Region", "% 85 and Older", "% Female", "Case Rate per Million" ), caption="2011 Census Rates versus 2022 Monkeypox Rates by European Region") %>%
+  kable_styling(full_width=F) %>%
+  kable_styling(position="left") %>%
+  kable_styling(font_size=10)
 ```
