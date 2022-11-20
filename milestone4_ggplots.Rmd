@@ -286,12 +286,12 @@ summary(df_grouped)
 ```
 
 ## Milestone 4
-``` {r join census data}
-# Hypothesis: Countries with a higher proportion of older residents will have a higher case rate.
-# Y_GE85
-table(census_stats_df$age)
-table(census_stats_df$time)
+To evaluate how census data trends for a region compare to that region's monkeypox rates, we will first calculate the % of the population 
+in each region that is 85 years old or older and the % of the population in each region that is female.
 
+Then we will compare these rates against the regions' monkey pox rates and evaluate any trends we see.
+``` {r join census data}
+# First, calculate the number of females in each country.
 sex_pct_df <- census_stats_df %>%
   group_by(country_code, sex) %>%
   summarize(sex_count = sum(pop)) %>%
@@ -301,6 +301,7 @@ sex_pct_df <- census_stats_df %>%
          country_pop != 0) %>%
   rename(female_count = sex_count)
 
+# Then, calculate the number greater than or equal to 85 years old in each country.
 age_pct_df <- census_stats_df %>%
   group_by(country_code, age) %>%
   summarize(age_count = sum(pop)) %>%
@@ -310,26 +311,29 @@ age_pct_df <- census_stats_df %>%
          country_pop != 0) %>%
   rename(ge85_count = age_count)
 
+# Join these two df's together.
 demog_df <- full_join(x = sex_pct_df, y = age_pct_df, by = "country_code") 
-
 demog_df <- demog_df %>%
   select(country_code, ge85_count, female_count, country_pop.x) %>%
   rename(country_pop = country_pop.x)
 
-  
+# Join the combined df with the regions df so we can map country codes to regions.
 demog_df <- inner_join(x = regions, y = demog_df, by = 'country_code')
 
+# Calculate the % of the population that is GE85 and the % that is Female
 demog_df <- demog_df %>%
   group_by(sub.region) %>%
   summarize(pct_ge85 = round(sum(ge85_count) / sum(country_pop) * 100,2),
             pct_female = round(sum(female_count) / sum(country_pop) * 100, 2))
 
+# Group the monkeypox case rate df by region and calculate regional case rate
 df_grouped_total <- df_grouped %>%
   group_by(sub.region) %>%
   summarize(total_cases = sum(total_cases),
             total_obs = sum(total_obs)) %>%
   mutate(case_rate_p_mill = total_cases / total_obs * 1000000)
 
+# Join case rates with the regional census data
 demog_df <- inner_join(x = demog_df, y = df_grouped_total, by = "sub.region")
 demog_df <- select(demog_df, c(-total_cases, -total_obs))
 ```
