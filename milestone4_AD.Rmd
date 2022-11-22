@@ -2,9 +2,8 @@
 ---
 title: "Milestone 4"
 author: "Abigail Duque, Misty Garcia, Katherine Boudreau"
+output: pdf_document
 date: '2022-11-19'
-output:html_document:
-df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -48,4 +47,331 @@ census_stats_df <- read_csv(census_stats_url,
           col_types = NULL,
           na = c("", "NA"))
 
+```
+
+## Lowercase Column Names
+We are now lowercasing all the column names. 
+
+```{r lowercase}
+mpx_cases_df <- rename_with(mpx_cases_df, ~tolower(.x))
+pop_denoms_df <- rename_with(pop_denoms_df, ~tolower(.x))
+census_stats_df <- rename_with(census_stats_df, ~tolower(.x))
+```
+
+## Data Types and Descriptions
+Details of key data elements are outlined below. All elements listed are in an appropriate data format for the joins and analysis we intend to do.
+
+### Variable: daterep from mpx_cases_df
+
+```{r}
+str(mpx_cases_df$daterep)
+
+min(mpx_cases_df$daterep)
+max(mpx_cases_df$daterep)
+
+unique(dplyr::count(mpx_cases_df, daterep)$n)
+```
+
+The dates are in date format, they span from 2022-05-09 to 2022-08-23, and each date shows up 29 times. 
+
+### Variables: countrycode from mpx_cases_df
+
+```{r}
+typeof(mpx_cases_df$countrycode)
+unique(mpx_cases_df$countrycode)
+length(unique(mpx_cases_df$countrycode))
+```
+
+The variable countryexp is the country name where countrycode is it's two letter counterpart. Both are in character format. There are 29 countries respresented. 
+
+### Variable: source from mps_cases_df
+
+```{r}
+typeof(mpx_cases_df$source)
+
+unique(mpx_cases_df$source)
+```
+
+Source is in a character format. There are two sources of data: "TESSy" and "EI."
+
+### Variable: confcase from mpx_cases_df
+
+```{r}
+typeof(mpx_cases_df$confcases)
+
+unique(mpx_cases_df$confcases)
+
+min(mpx_cases_df$confcases)
+mean(mpx_cases_df$confcases)
+max(mpx_cases_df$confcases)
+```
+
+The confirmed cases are in a numeric data format and range from 0 to 655. The mean is 5.7 cases per day. 
+
+### Variable: geo from pop_denoms_df
+```{r pop_denoms_df$geo}
+typeof(pop_denoms_df$geo)
+length(unique(pop_denoms_df$geo))
+```
+The values in the GEO column of the pop_denoms_df are characters denoting the geopolitical region that a given row's population data comes from. There are 54 possible values for this column, either a 2-letter country code or a code denoting the entire European Union on a given year. We will eventually merge these 2-letter country codess with the 2-letter country codes in the euro_mpx_cases csv, so the character data type will suffice.
+
+### variable: obs_value from pop_denoms_df
+```{r pop_denoms_df$obs_value}
+summary(pop_denoms_df$obs_value)
+typeof(pop_denoms_df$obs_value)
+```
+The values in the obs_value column are the observed population on January 1 of the reported year. These values are doubles representing the total population count of a given region, so we can use these values directly as the denominators in our case rate calculations.
+
+### variable: country_code from census_stats_df
+```{r country_code}
+
+typeof(census_stats_df$country_code)
+unique(census_stats_df$country_code)
+length(unique(census_stats_df$country_code))
+
+```
+Country Code is a character data type and there are 32 different two-letter country codes in this dataset. We will obtain the different regions from the country_code variable.
+
+### variable: sex from census_stats_df
+
+```{r sex}
+unique(census_stats_df$sex)
+
+```
+Sex is a character data type, and there are two categories: male, female. We might use sex as a demographic variable to stratify case rates by.
+
+## variable: age from census_stats_df
+```{r age}
+
+typeof(census_stats_df$age)
+unique(census_stats_df$age)
+
+
+```
+Age is character data type that includes six different age ranges in the dataset: <15, 15-29, 30-49, 65-84 & >85. We might use age as a demographic variable to stratify case rates by.
+
+## variable: cas from census_stats_df
+```{r employment status}
+
+typeof(census_stats_df$cas)
+unique(census_stats_df$cas)
+
+```
+Cas is a character data type and represents the employment status of an individual. There are five different statuses, and we might use these to stratify case rates by.
+
+## variable: edu from census_stats_df
+```{r education status}
+typeof(census_stats_df$edu)
+unique(census_stats_df$edu)
+
+```
+Education status is in a character format, and there are nine different statuses of education. We might use education status to stratify case rates by.
+
+## variable: res_pop from census_stats_df
+```{r residence population}
+
+typeof(census_stats_df$res_pop)
+unique(census_stats_df$res_pop)
+
+```
+Resident population (res_pop) is in a character data format. There are seven levels of population in each locality of residence.
+
+
+## variable: pop from census_stats_df
+```{r # of people in each location strata}
+
+typeof(census_stats_df$pop)
+range(census_stats_df$pop)
+
+```
+The strata population is in a numeric data format. The number of people in the different location strata ranges from 0 to 1,702,270.
+
+\newpage
+# Milestone 3
+
+Subset rows or columns, as needed
+```{r subset}
+
+#acquire region dataset
+regions <- read.csv('https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/world_country_regions.csv')
+
+#filtered by europe countries
+regions <- regions %>%
+  filter(region == 'Europe') %>%
+  select(iso_3166.2, sub.region, region)
+
+#create country code variable to join tables
+regions <- regions %>% 
+  mutate(country_code = substr(regions$iso_3166.2,12,13) )
+
+#filtered mpx_cases columns
+mpx_cases_df <- mpx_cases_df %>%
+  select(daterep, countrycode, confcases)
+
+#filter pop_denom for 2011 for census analysis
+pop_denoms_2011 <- pop_denoms_df %>%
+  filter(time_period == 2011) %>%
+  select(geo, obs_value)
+
+#filtered pop_denom by year and columns
+pop_denoms_df <- pop_denoms_df %>%
+  filter(time_period == 2022) %>%
+  select(geo, obs_value)
+
+#joined all three datasets together
+df <- inner_join(x = regions, y = mpx_cases_df, by = c('country_code' = 'countrycode'))
+df <- inner_join(x = df, y = pop_denoms_df, by = c('country_code' = 'geo'))
+
+
+df <- df %>%
+  select(-iso_3166.2, -region)
+```
+
+Create new variables needed for analysis (minimum 2)
+
+```{r new_variables}
+
+#created case rate by ten million people
+df_grouped <- df %>% 
+  group_by(sub.region, daterep) %>%
+  summarise(total_cases = sum(confcases), total_obs = sum(obs_value)) %>%
+  mutate(case_rate_by_tenmillion = total_cases / total_obs * 10000000)
+
+df_grouped
+
+```
+
+Clean variables needed for analysis (minimum 2)
+
+``` {r clean_variables}
+
+#we used an inner join and there were no discrepancies between datasets, 
+#therefore are no nulls caused by joining
+sum(is.na(df_grouped))
+
+#make sub.region a categorical value
+df_grouped <- df_grouped %>%
+  mutate(sub.region = factor(sub.region))
+
+#make new month column & made it a categorical value
+df_grouped <- df_grouped %>%
+  mutate(month = strftime(daterep,"%B")) %>%
+  mutate(month = factor(month, levels = c('May','June','July','August')))
+
+str(df_grouped)
+
+
+```
+Data dictionary based on clean dataset (minimum 4 data elements), including:
+Fields
+Variable name
+Data type
+Description
+
+sub.region: factor, region in europe
+
+daterep: date, year-month-day by week from may to august 2022
+
+total_cases: num, total monkeypox cases in a subregion by week
+
+total_obs: num, total population by subregion
+
+case_rate_by_tenmillion: num, the rate of monkeypox in a subregion by ten million people
+
+month: date, the month from may to august 2022
+
+
+One or more tables with descriptive statistics for 4 data element
+
+```{r}
+summary(df_grouped)
+```
+
+## Milestone 4
+### Visualize MPX rates from May to August 2022 in each EU region
+As requested by the leadership of our state health department, we have created a bar chart to visualize monthly MPX case rates for the different regions within the EU.
+```{r, warning=FALSE}
+
+plot_ly(
+  df_grouped,
+  x= ~month,
+  y= ~case_rate_by_tenmillion,
+  color= ~sub.region,
+  type="bar"
+) %>%
+  layout(
+    title="MPX Case Rates by EU Region, May to August 2022",
+    yaxis=list(title="Case Rates per 1,000,000"),
+    xais=list(title="Month"),
+    paper_bgcolor="white",
+    plot_bgcolor="white"
+  )
+```
+
+### Prepare census data
+To evaluate how census data trends for a region compare to that region's monkeypox rates, 
+we will first calculate the % of the population in each region that is 85 years old 
+or older and the % of the population in each region that is female. Then we will
+compare these rates against the regions' monkey pox rates and evaluate any trends we see.
+``` {r join census data}
+# First, calculate the number of females in each country.
+sex_pct_df <- census_stats_df %>%
+  group_by(country_code, sex) %>%
+  summarize(sex_count = sum(pop)) %>%
+  group_by(country_code) %>%
+  mutate(country_pop = sum(sex_count)) %>%
+  filter(sex == "F",
+         country_pop != 0) %>%
+  rename(female_count = sex_count)
+
+# Then, calculate the number greater than or equal to 85 years old in each country.
+age_pct_df <- census_stats_df %>%
+  group_by(country_code, age) %>%
+  summarize(age_count = sum(pop)) %>%
+  group_by(country_code) %>%
+  mutate(country_pop = sum(age_count)) %>%
+  filter(age == "Y_GE85", 
+         country_pop != 0) %>%
+  rename(ge85_count = age_count)
+
+# Join these two df's together.
+demog_df <- full_join(x = sex_pct_df, y = age_pct_df, by = "country_code") 
+demog_df <- demog_df %>%
+  select(country_code, ge85_count, female_count, country_pop.x) %>%
+  rename(country_pop = country_pop.x)
+
+# Join the combined df with the regions df so we can map country codes to regions.
+##demog_df <- inner_join(x = regions, y = demog_df, by = 'country_code')
+
+# Calculate the % of the population that is GE85 and the % that is Female
+demog_df <- demog_df %>%
+  group_by(country_code) %>%
+  summarize(pct_ge85 = round(sum(ge85_count) / sum(country_pop) * 100,2),
+            pct_female = round(sum(female_count) / sum(country_pop) * 100, 2))
+
+# Group the monkeypox case rate df by region and calculate regional case rate
+df_case_rate <- df %>%
+  group_by(country_code) %>%
+  summarize(total_cases = sum(confcases),
+            total_obs = sum(obs_value)) %>%
+  mutate(case_rate_p_mill = total_cases / total_obs * 1000000)
+
+# Join case rates with the regional census data
+demog_df <- inner_join(x = demog_df, y = df_case_rate, by = "country_code")
+demog_df <- select(demog_df, c(-total_cases, -total_obs))
+
+```
+
+### Visualize census data vs case rates
+From this table view, one can see that there likely isn't at rend between a country's 
+percent of the population that is female and its monkeypox rate. However, a positive trend is possible
+between percent of the population that is 85 and older and that country's monkeypox case rate, however
+a visual plot will help elucidate the relationship better.
+``` {r}
+kable(demog_df,longtable=T,booktabs=T,
+      col.names=c("Country Code", "% 85 and Older", "% Female", "Case Rate per Million" ),
+      caption="2011 Census Rates versus 2022 Monkeypox Rates by Country") %>%
+  kable_styling(full_width=F) %>%
+  kable_styling(position="center") %>%
+  kable_styling(font_size=10)
 ```
