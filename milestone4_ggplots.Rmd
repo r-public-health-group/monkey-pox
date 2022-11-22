@@ -288,10 +288,10 @@ summary(df_grouped)
 
 ## Milestone 4
 ### Prepare census data
-To evaluate how census data trends for a region compare to that region's monkeypox rates, we will first calculate the % of the population 
-in each region that is 85 years old or older and the % of the population in each region that is female.
-
-Then we will compare these rates against the regions' monkey pox rates and evaluate any trends we see.
+To evaluate how census data trends for a region compare to that region's monkeypox rates, 
+we will first calculate the % of the population in each region that is 85 years old 
+or older and the % of the population in each region that is female. Then we will
+compare these rates against the regions' monkey pox rates and evaluate any trends we see.
 ``` {r join census data}
 # First, calculate the number of females in each country.
 sex_pct_df <- census_stats_df %>%
@@ -320,30 +320,37 @@ demog_df <- demog_df %>%
   rename(country_pop = country_pop.x)
 
 # Join the combined df with the regions df so we can map country codes to regions.
-demog_df <- inner_join(x = regions, y = demog_df, by = 'country_code')
+##demog_df <- inner_join(x = regions, y = demog_df, by = 'country_code')
 
 # Calculate the % of the population that is GE85 and the % that is Female
 demog_df <- demog_df %>%
-  group_by(sub.region) %>%
+  group_by(country_code) %>%
   summarize(pct_ge85 = round(sum(ge85_count) / sum(country_pop) * 100,2),
             pct_female = round(sum(female_count) / sum(country_pop) * 100, 2))
 
 # Group the monkeypox case rate df by region and calculate regional case rate
-df_grouped_total <- df_grouped %>%
-  group_by(sub.region) %>%
-  summarize(total_cases = sum(total_cases),
-            total_obs = sum(total_obs)) %>%
+df_case_rate <- df %>%
+  group_by(country_code) %>%
+  summarize(total_cases = sum(confcases),
+            total_obs = sum(obs_value)) %>%
   mutate(case_rate_p_mill = total_cases / total_obs * 1000000)
 
 # Join case rates with the regional census data
-demog_df <- inner_join(x = demog_df, y = df_grouped_total, by = "sub.region")
+demog_df <- inner_join(x = demog_df, y = df_case_rate, by = "country_code")
 demog_df <- select(demog_df, c(-total_cases, -total_obs))
+
 ```
 
 ### Visualize census data vs case rates
+From this table view, one can see that there likely isn't at rend between a country's 
+percent of the population that is female and its monkeypox rate. However, a positive trend is possible
+between percent of the population that is 85 and older and that country's monkeypox case rate, however
+a visual plot will help elucidate the relationship better.
 ``` {r}
-kable(demog_df,longtable=T,booktabs=T, col.names=c("Region", "% 85 and Older", "% Female", "Case Rate per Million" ), caption="2011 Census Rates versus 2022 Monkeypox Rates by European Region") %>%
+kable(demog_df,longtable=T,booktabs=T,
+      col.names=c("Country Code", "% 85 and Older", "% Female", "Case Rate per Million" ),
+      caption="2011 Census Rates versus 2022 Monkeypox Rates by Country") %>%
   kable_styling(full_width=F) %>%
-  kable_styling(position="left") %>%
+  kable_styling(position="center") %>%
   kable_styling(font_size=10)
 ```
