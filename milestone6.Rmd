@@ -329,7 +329,7 @@ plot_ly(
   )
 
 ```
-
+All four regions experienced a similar chronological trend from May to August where May had the lowest case rates and July had the highest case rates. Between the four regions, there was a consistent ordering of case rates at each time point: Eastern Europe had the lowest rate, followed by Northern Europe, Western Europe, and Southern Europe. One interesting anomaly is that Northern Europe does not appear to experience as significant of a downward trend from July to August that the other regions experienced.
 
 ### Prepare census data
 To evaluate how census data trends for a region compare to that region's monkeypox rates, 
