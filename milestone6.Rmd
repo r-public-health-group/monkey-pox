@@ -353,8 +353,8 @@ plot_ly(
   )
 
 ```
-The bar chart indicates that the overall highest MPX rates of infection were in the month of July, 2022, particularly in Southern Europe. The MPX case rates appear to increase from May to July and decrease from July to August.   
-*Note: MPX case rates are per ten million people.*
+All four regions experienced a similar chronological trend from May to August where May had the lowest case rates and July had the highest case rates. Between the four regions, there was a consistent ordering of case rates at each time point: Eastern Europe had the lowest rate, followed by Northern Europe, Western Europe, and Southern Europe. One interesting anomaly is that Northern Europe does not appear to experience as significant of a downward trend from July to August that the other regions experienced.    
+*Note: MPX case rates are per ten million people.*    
 
 
 ### Table 1   
