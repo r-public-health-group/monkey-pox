@@ -36,9 +36,9 @@ We used four different datasets to complete this report:
   4.    Demographic data from the European Statistical System's 2011 European census data
   \href{https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_census_stats.csv}.      
 
-From the ISO 3166 world region data, we filtered by European region and selected the four European subregions and country codes. We then matched country code formats with the ECDC MPX & Eurostat population datasets in preparation for joining. The ECDC MPX dataset spanned 2022-05-09 to 2022-08-23 and included the reported date of confirmed monkey pox cases by country and the source of data collection. From this dataset, we filtered by date, country code and confirmed number of MPX cases. To obtain the population denominators used in our calculation of weekly MPX case rates, we incorporated Eurostat's European population dataset, which included yearly population data of European countries from 2011 to 2022 based on the total population residing in that country as of January 1st of each year. We used these three subsetted datasets for our investigations, MPX case rates by European subregions and MPX case rates by demographic factors.
+From the ISO 3166 world region data, we filtered by European region and selected the four European subregions and country codes. We then matched country code formats with the ECDC MPX & Eurostat population datasets in preparation for joining. The ECDC MPX dataset spanned 2022-05-09 to 2022-08-23 and included the reported date of confirmed monkeypox cases by country and the source of data collection. From this dataset, we filtered by date, country code and confirmed number of MPX cases. To obtain the population denominators used in our calculation of weekly MPX case rates, we incorporated Eurostat's European population dataset, which included yearly population data of European countries from 2011 to 2022 based on the total population residing in that country as of January 1st of each year. We used these three subsetted datasets for our investigations, MPX case rates by European subregions and MPX case rates by demographic factors.
 
-To calculate MPX case rates by European subregion, we first filtered the European population dataset by the year 2022 (the only year ECDC MPX cases were recorded) and then selected country code and total population. We then inner joined the European population denominators, ECDC MPX and ISO3166 subsetted datasets together by country code. There were no discrepancies between datasets, therefore, no missing values after joining. Our final aggregated dataset contained five columns: European sub region, country code, confirmed number of monkeypox cases and population denominators data. After grouping by the four European subregions, we created a new MPX case rate by ten million variable which can be visualized in Figure 1.
+To calculate MPX case rates by European subregion, we first filtered the European population dataset by the year 2022 (the only year ECDC MPX cases were recorded) and then selected country code and total population. We then inner joined the European population denominators, ECDC MPX and ISO3166 subsetted datasets together by country code. There were no discrepancies between datasets, therefore, no missing values after joining. Our final aggregated dataset contained five columns: European sub region, country code, confirmed number of monkeypox cases and population denominators data. After grouping by the four European subregions, we created a new MPX case rate by one million variable which can be visualized in Figure 1.
 
 The European Statistical System's 2011 European census data contained EU country codes, sex at birth, age ranges, employment status, education status, population of locality of residence and the number of people in each strata. Since we were only interested in observing possible trends in European countries' MPX case rates when stratified by the female gender and people aged 85 years and older, we created new dataframes grouped by country code and filtered for the female sex and people aged 85 years and older per country followed by subsequent calculation of percentages of each respective demographic per country. We then joined our aggregated census data with our data frame containing MPX case rates by European country (Table 1). Trends in European MPX case rates by people 85 years of age and older and female gender can be seen in Figure 2 and Figure 3, respectively.
 
@@ -226,7 +226,7 @@ df <- df %>%
 df_grouped <- df %>% 
   group_by(sub.region, daterep) %>%
   summarise(total_cases = sum(confcases), total_obs = sum(obs_value)) %>%
-  mutate(case_rate_by_tenmillion = total_cases / total_obs * 10000000)
+  mutate(case_rate_by_onemillion = total_cases / total_obs * 1000000)
 
 ```
 
@@ -319,7 +319,7 @@ demog_df <- select(demog_df, c(-total_cases, -total_obs))
 #daterep: date, year-month-day by week from may to august 2022
 #total_cases: num, total monkeypox cases in a subregion by week
 #total_obs: num, total population by subregion
-#case_rate_by_tenmillion: num, the rate of monkeypox in a subregion by ten million people
+#case_rate_by_onemillion: num, the rate of monkeypox in a EU subregion by one million people
 #month: date, the month from may to august 2022
 #pct_ge85: num, percent of the population aged 85 years or older
 #pct_female: num, percent of the population that is female
@@ -340,20 +340,20 @@ demog_df <- select(demog_df, c(-total_cases, -total_obs))
 plot_ly(
   df_grouped,
   x= ~month,
-  y= ~case_rate_by_tenmillion,
+  y= ~case_rate_by_onemillion,
   color= ~sub.region,
   type="bar"
 ) %>%
   layout(
     title="MPX Case Rates by EU Region, May to August 2022",
-    yaxis=list(title="Case Rates per 10,000,000"),
+    yaxis=list(title="Case Rates per 1,000,000"),
     xais=list(title="Month"),
     paper_bgcolor="white",
     plot_bgcolor="white"
   )
 
 ```
-Here, one can observe a bar chart representing the case rates per 10,000,000 individuals across the four regions of Europe during May, June, July, and August of 2022.
+Here, one can observe a bar chart representing the case rates per 1,000,000 individuals across the four regions of Europe during May, June, July, and August of 2022.
 
 All four regions experienced a similar chronological trend from May 2022 to August 2022 where May had the lowest case rates and July had the highest case rates. Between the four regions, there was a consistent ordering of case rates at each time point: Eastern Europe had the lowest rate, followed by Northern Europe, Western Europe, and Southern Europe. One interesting anomaly is that Northern Europe does not appear to experience as significant of a downward trend from July to August that the other regions experienced. 
 
@@ -370,7 +370,7 @@ kable(demog_df,longtable=T,booktabs=T,
   kable_styling(font_size=14)
 ```
   
-We compiled this table to investigate if a country's demographic data - in this case, age proportion of the population that is elderly or female - correlates with that country's monkeypox case rate.
+We compiled this table to investigate if a country's demographic data - in this table, age proportion of the population that is elderly or female - correlates with that country's monkeypox case rate.
 
 From this table view, there appears to be a positive trend between percent of the population that is 85 and older and that country's monkeypox case rate. A trend is not obvious between a country's percent of the population that is female and its monkeypox rate, especially because the proportion of the population that is female is very similar across all the countries. Plotting these data longitudinally, as we do below, will help to confirm these observations.
 
