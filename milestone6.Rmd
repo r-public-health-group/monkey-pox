@@ -222,7 +222,7 @@ df <- df %>%
 ```{r new_variables, warning=FALSE, include=FALSE}
 #Create new variables needed for analysis (minimum 2)
 
-#created case rate by ten million people
+#created case rate by one million people
 df_grouped <- df %>% 
   group_by(sub.region, daterep) %>%
   summarise(total_cases = sum(confcases), total_obs = sum(obs_value)) %>%
