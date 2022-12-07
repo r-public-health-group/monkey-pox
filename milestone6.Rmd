@@ -353,7 +353,9 @@ plot_ly(
   )
 
 ```
-All four regions experienced a similar chronological trend from May to August where May had the lowest case rates and July had the highest case rates. Between the four regions, there was a consistent ordering of case rates at each time point: Eastern Europe had the lowest rate, followed by Northern Europe, Western Europe, and Southern Europe. One interesting anomaly is that Northern Europe does not appear to experience as significant of a downward trend from July to August that the other regions experienced.    
+Here, one can observe a bar chart representing the case rates per 10,000,000 individuals across the four regions of Europe during May, June, July, and August of 2022.
+
+All four regions experienced a similar chronological trend from May 2022 to August 2022 where May had the lowest case rates and July had the highest case rates. Between the four regions, there was a consistent ordering of case rates at each time point: Eastern Europe had the lowest rate, followed by Northern Europe, Western Europe, and Southern Europe. One interesting anomaly is that Northern Europe does not appear to experience as significant of a downward trend from July to August that the other regions experienced.    
 *Note: MPX case rates are per ten million people.*    
 
 
@@ -368,8 +370,9 @@ kable(demog_df,longtable=T,booktabs=T,
   kable_styling(position="center") %>%
   kable_styling(font_size=14)
 ```
+We compiled this table to investigate if a country's demographic data - in this age proportion of the population that is elderly or female - correlates with that country's monkeypox case rate.
 
-From this table view, a trend does not seem to appear between a country's percent of the population that is female and its monkeypox rate. However, a positive trend is possible between percent of the population that is 85 and older and that country's monkeypox case rate.
+From this table view, there appears to be a positive trend between percent of the population that is 85 and older and that country's monkeypox case rate. A trend is not obvious between a country's percent of the population that is female and its monkeypox rate, especially because the proportion of the population that is female is very similar across all the countries. Plotting these data longitudinally, as we do below, will help to confirm these observations.
 
 
 ### Figure 2    
@@ -387,9 +390,9 @@ ggplot(demog_df, aes(pct_ge85, case_rate_p_mill)) +
   theme_light()
 ```
 
-Plotting the percent of people 85 years and older against the MPX case rates in European countries shows an upward trend.   
+In Figure 2, we plot the percent of a country's population that is aged 85 years and older against the MPX case rates per 1,000,000 individuals in European countries, and we observe a fairly strong positive trend, confirming a positive correlation between these two variables for these countries.
   
-### Figure 2  
+### Figure 3  
 
 
 ```{r case rate vs females plot, warning=FALSE, echo=FALSE}
@@ -401,10 +404,9 @@ ggplot(demog_df, aes(pct_female, case_rate_p_mill)) +
        title='Monkeypox rates decrease in countries with more females') +
   theme_light()
 ```
-  
-
-Plotting the percent of European countries that are female against the MPX case rates in European countries shows a downward trend.  
-  
+In Figure 3, we plot the percent of a country's population that is female against the MPX case rates per 1,000,000 individuals in European countries, and we see a negative correlation between these two variables.
   
 ## Discussion 
+In conclusion, monkeypox case rates followed a similar trend across all European regions from May to August 2022, with the lowest case rates ocurring in May of 2022, and the highest case rates occurring in July of 2022. Homing in on the European countries' demographic data we further see trends between country case rate data and population demographic data for two key demographics: proportion of the population that is 85 and older and proportion of the population that is female. For the former we see a positive correlation and for the latter we see a negative correlation.
 
+We hope these trends can help public health leaders understand and prioritize monkeypox interventions.
