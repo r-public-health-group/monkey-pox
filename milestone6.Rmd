@@ -370,7 +370,7 @@ kable(demog_df,longtable=T,booktabs=T,
   kable_styling(font_size=14)
 ```
   
-We compiled this table to investigate if a country's demographic data - in this table, age proportion of the population that is elderly or female - correlates with that country's monkeypox case rate.
+We compiled this table to investigate if a country's demographic data - in this case, age proportion of the population that is elderly or female - correlates with that country's monkeypox case rate.
 
 From this table view, there appears to be a positive trend between percent of the population that is 85 and older and that country's monkeypox case rate. A trend is not obvious between a country's percent of the population that is female and its monkeypox rate, especially because the proportion of the population that is female is very similar across all the countries. Plotting these data longitudinally, as we do below, will help to confirm these observations.
 
